@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>森林奇遇記｜互動電子繪本</title>
+<style>
+:root{--ink:#49301f;--cream:#fff8e9;--gold:#e8b85b;--green:#55734b;--shadow:0 18px 50px #3b281b30}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;background:radial-gradient(circle at 15% 10%,#fff5cf 0 10%,transparent 34%),linear-gradient(135deg,#dce9c8,#f8e7c5 55%,#e9c79d);overflow-x:hidden}
+button{font:inherit;cursor:pointer}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px clamp(16px,4vw,56px)}
+.brand{font-weight:900;letter-spacing:.12em;font-size:clamp(18px,2.5vw,25px)}
+.brand span{color:var(--green)}
+.top-actions{display:flex;gap:9px;flex-wrap:wrap}
+.soft-btn{border:1px solid #8b704b55;background:#fff9edcc;color:var(--ink);padding:9px 15px;border-radius:999px;box-shadow:0 4px 12px #4c35151a}
+.soft-btn:hover{background:#fff}
+main{width:min(1120px,94vw);margin:0 auto 34px}
+.intro{text-align:center;margin:4px auto 22px}
+.kicker{color:var(--green);font-size:12px;font-weight:800;letter-spacing:.3em}
+h1{font-family:Georgia,"Noto Serif TC",serif;font-size:clamp(30px,5vw,48px);margin:7px 0;color:#5c3822}
+.subtitle{margin:0;color:#80664d}
+.book-shell{position:relative;display:grid;grid-template-columns:1fr 1fr;align-items:stretch;width:min(940px,100%);margin:0 auto;background:#fff8e9;border:10px solid #a66c3c;border-radius:13px 22px 22px 13px;box-shadow:var(--shadow);overflow:hidden;min-height:clamp(330px,55vw,590px)}
+.book-shell:before{content:"";position:absolute;z-index:2;top:0;bottom:0;left:50%;width:18px;transform:translateX(-50%);background:linear-gradient(90deg,#6d472c35,#fff9e8 45%,#6d472c35);pointer-events:none}
+.page{position:relative;display:flex;align-items:center;justify-content:center;padding:clamp(12px,2.4vw,28px);min-width:0;background:linear-gradient(90deg,#fffaf0,#fff4df)}
+.page:first-child{background:linear-gradient(90deg,#f8e8c8,#fff8e9)}
+.page img{display:block;max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 8px #44260e20)}
+.page-number{position:absolute;bottom:10px;font-size:12px;color:#9a7959}
+.page:first-child .page-number{left:20px}.page:last-child .page-number{right:20px}
+.page img.missing{display:none}
+.placeholder{display:none;text-align:center;color:#927452;padding:20px}
+.placeholder strong{display:block;font-size:22px;margin-bottom:8px}
+.nav{position:absolute;z-index:3;top:50%;transform:translateY(-50%);width:48px;height:48px;border:0;border-radius:50%;background:#fff8e8ed;color:#68462c;box-shadow:0 4px 16px #44260e33;font-size:27px}
+.nav:hover{background:white;transform:translateY(-50%) scale(1.06)}
+.nav:disabled{opacity:.35;cursor:not-allowed}
+#prev{left:12px}#next{right:12px}
+.controls{display:flex;align-items:center;justify-content:center;gap:14px;margin:20px auto 13px;flex-wrap:wrap}
+.progress{width:min(300px,45vw);height:7px;background:#fff9e5;border-radius:20px;overflow:hidden;box-shadow:inset 0 1px 3px #76532c30}
+.progress span{display:block;height:100%;width:5%;background:linear-gradient(90deg,#75945e,#e0ad4d);transition:width .3s}
+.counter{font-size:13px;color:#765b3e;min-width:76px;text-align:center}
+.read-btn{background:var(--green);color:white;border:0;border-radius:999px;padding:12px 24px;box-shadow:0 5px 14px #3d5d3533}
+.read-btn:hover{background:#405f38}
+.thumbs{display:flex;gap:8px;justify-content:center;overflow-x:auto;padding:10px 4px 14px;scrollbar-color:#b58a54 transparent}
+.thumb{flex:0 0 62px;height:48px;padding:3px;border:2px solid transparent;background:#fff8e8;border-radius:7px;opacity:.7}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb.active{border-color:#a56b32;opacity:1;transform:translateY(-2px)}
+.note{text-align:center;color:#7c6247;font-size:13px;margin:5px 0 24px}
+.footer{text-align:center;font-size:12px;color:#8a7157;padding:0 16px 25px}
+@media(max-width:650px){.book-shell{grid-template-columns:1fr;min-height:unset;border-width:7px;border-radius:12px}.book-shell:before{display:none}.page{min-height:0;aspect-ratio:4/3;padding:12px}.page:first-child{display:none}#prev{left:7px}#next{right:7px}.nav{width:40px;height:40px}.topbar{align-items:flex-start}.brand{letter-spacing:.04em}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">✦ <span>STORY</span> FOREST</div>
+  <div class="top-actions">
+    <button class="soft-btn" id="homeBtn">⌂ 回到封面</button>
+    <button class="soft-btn" id="fullscreenBtn">⛶ 全螢幕</button>
+  </div>
+</header>
+<main>
+  <section class="intro">
+    <div class="kicker">AN INTERACTIVE PICTURE BOOK</div>
+    <h1>森林奇遇記</h1>
+    <p class="subtitle">翻開故事，走進充滿驚喜的森林世界。</p>
+  </section>
+
+  <section class="book-shell" aria-label="電子繪本">
+    <div class="page">
+      <img id="leftImage" src="assets/graphics/0.jpg" alt="繪本左頁">
+      <div class="placeholder" id="leftPlaceholder"><strong>森林奇遇記</strong>請確認圖片資料夾位置</div>
+      <span class="page-number" id="leftNum">封面</span>
+    </div>
+    <div class="page">
+      <img id="rightImage" src="assets/graphics/1.jpg" alt="繪本右頁">
+      <div class="placeholder" id="rightPlaceholder"><strong>故事即將開始</strong>請確認 assets/graphics 資料夾</div>
+      <span class="page-number" id="rightNum">第 1 頁</span>
+    </div>
+    <button class="nav" id="prev" aria-label="上一頁">‹</button>
+    <button class="nav" id="next" aria-label="下一頁">›</button>
+  </section>
+
+  <div class="controls">
+    <button class="soft-btn" id="prevText">← 上一頁</button>
+    <div class="progress" aria-label="閱讀進度"><span id="progressFill"></span></div>
+    <div class="counter" id="counter">封面 / 20</div>
+    <button class="soft-btn" id="nextText">下一頁 →</button>
+  </div>
+  <div style="text-align:center"><button class="read-btn" id="startBtn">▶ 開始閱讀</button></div>
+  <div class="thumbs" id="thumbs" aria-label="頁面縮圖"></div>
+  <p class="note">小提示：可以使用左右方向鍵翻頁，也可以點選下方縮圖快速跳頁。</p>
+</main>
+<footer class="footer">一段故事，一場想像力的森林旅行 ✧</footer>
+<script>
+const total=20;
+let page=0;
+const left=document.getElementById('leftImage'), right=document.getElementById('rightImage');
+const leftPH=document.getElementById('leftPlaceholder'), rightPH=document.getElementById('rightPlaceholder');
+const thumbs=document.getElementById('thumbs');
+function imagePath(n){return `assets/graphics/${n}.jpg`}
+function setImage(img,ph,n){
+  img.style.display='block'; ph.style.display='none';
+  img.onerror=()=>{img.style.display='none';ph.style.display='block'};
+  img.src=imagePath(n);
+}
+function render(){
+  const leftPage=page===0?0:page;
+  const rightPage=Math.min(page+1,total-1);
+  setImage(left,leftPH,leftPage); setImage(right,rightPH,rightPage);
+  document.getElementById('leftNum').textContent=page===0?'封面':`第 ${leftPage} 頁`;
+  document.getElementById('rightNum').textContent=page===0?'第 1 頁':`第 ${rightPage} 頁`;
+  document.getElementById('counter').textContent=page===0?'封面 / 20':`${page+1}–${rightPage} / 20`;
+  document.getElementById('progressFill').style.width=`${Math.max(5,(rightPage+1)/total*100)}%`;
+  document.getElementById('prev').disabled=page===0;
+  document.getElementById('prevText').disabled=page===0;
+  document.getElementById('next').disabled=page>=total-1;
+  document.getElementById('nextText').disabled=page>=total-1;
+  [...thumbs.children].forEach((el,i)=>el.classList.toggle('active',i===page));
+}
+function go(delta){page=Math.max(0,Math.min(total-1,page+delta));render()}
+document.getElementById('prev').onclick=()=>go(-1);
+document.getElementById('next').onclick=()=>go(1);
+document.getElementById('prevText').onclick=()=>go(-1);
+document.getElementById('nextText').onclick=()=>go(1);
+document.getElementById('homeBtn').onclick=()=>{page=0;render()};
+document.getElementById('startBtn').onclick=()=>{page=1;render()};
+document.getElementById('fullscreenBtn').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()};
+for(let i=0;i<total;i++){
+  const b=document.createElement('button');b.className='thumb';b.title=i===0?'封面':`第 ${i} 頁`;
+  const im=document.createElement('img');im.src=imagePath(i);im.alt=b.title;im.onerror=()=>{im.style.opacity='.15'};
+  b.appendChild(im);b.onclick=()=>{page=i;render()};thumbs.appendChild(b);
+}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1)});
+render();
+</script>
+</body>
+</html>
